@@ -31,6 +31,11 @@ public class Member {
         this.username = username;
     }
 
+    public Member(String username, int age) {
+        this.username = username;
+        this.age = age;
+    }
+
     // Member를 생성할 때 생성자를 통해
     public Member(String username, int age, Team team) {
         this.username = username;
