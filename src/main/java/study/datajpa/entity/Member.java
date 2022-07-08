@@ -9,6 +9,10 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 사용시 Entity는 기본 생성자 필수 -> Proxy 기술 사용을 위해 protected 으로 설정.
 @ToString(of = {"id", "username", "age"}) // toString은 연관관계가 없는 필드에만 설정하는 것이 좋다.
+@NamedQuery(
+        name="Member.findByUsername",
+        query="select m from Member m where m.username = :username"
+)
 public class Member {
 
     @Id
