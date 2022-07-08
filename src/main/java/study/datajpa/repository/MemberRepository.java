@@ -14,4 +14,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query(name = "Member.findByUsername")
     List<Member> findByUsername(@Param("username") String username);
+
+    // Spring Data JPA 가 제공하는 리포지토리 메소드에 쿼리 정의 기능!!!
+    @Query("select m from Member m where m.username = :username and m.age = :age")
+    List<Member> findMember(@Param("username") String username, @Param("age") int age);
 }
