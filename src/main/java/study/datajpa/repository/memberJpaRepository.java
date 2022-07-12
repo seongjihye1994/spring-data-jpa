@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MemberJpaRepository {
+public class memberJpaRepository {
 
     // 스프링 컨테이너 구동 시 영속성 컨텍스트에서 자동으로 값을 가져옴
     @PersistenceContext // JPA 사용을 위한 EntityManager 사용을 위해
@@ -83,5 +83,16 @@ public class MemberJpaRepository {
                 .getSingleResult(); // 갯수는 한 건만 조회되니 singleResult
     }
 
+    // 벌크성 수정 쿼리 - 대용량 더티 체킹
+    public int bulkAgePlus(int age) {
+
+        int resultCount = em.createQuery("update Member m set m.age = m.age + 1" +
+                        " where m.age >= :age")
+                .setParameter("age", age)
+                .executeUpdate();
+
+        return resultCount;
+
+    }
 
 }

@@ -13,6 +13,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,7 @@ class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+    @PersistenceContext EntityManager em;
 
     @Test
     void testMember() {
@@ -224,6 +227,38 @@ class MemberRepositoryTest {
 
         // Slice 객체는 totalCount 쿼리를 날리지 않는다.
         // 그래서 totalCount 도 모를 뿐더러, totalPages 도 모른다.
+    }
+
+    @Test
+    public void bulkUpdate() {
+
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        // when
+        int resultCount = memberRepository.bulkAgePlus(20); // 20살 이상부터 나이에 +1 하기
+//        em.flush(); // 영속성 컨텍스트와 DB 싱크맞춤
+//        em.clear(); // 영속성 컨텍스트 초기화
+
+        List<Member> result = memberRepository.findByUsername("member5");
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5); // age = 40
+
+        // 벌크 연산은 영속성 컨텍스트를 신경쓰지 않는다.
+        // 오로지 DB 업데이트에만 신경 쓸 뿐이다.
+        // 그래서 위 코드에서 20살 이상부터 나이에 +1 하기로 인해
+        // DB에서는 40이 41로 수정되었지만
+        // 영속성 컨텍스트는 여전히 40이다.
+        // 그래서 이 메소드가 끝나기 전(트랜잭션 커밋 전)
+        // 영속성 컨텍스트의 1차 캐시를 조회해 온 결과 여전히 40살 인 것을 알 수 있다.
+        // 그래서 em.flush() 와 em.clear()을 꼭 해줘야 값이 일치된다.
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
     }
 
 
