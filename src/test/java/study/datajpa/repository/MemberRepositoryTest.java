@@ -11,6 +11,7 @@ import study.datajpa.entity.Team;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -160,5 +161,29 @@ class MemberRepositoryTest {
             System.out.println("member = " + member);
         }
     }
+
+    @Test
+    public void returnType() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        Member findMember = memberRepository.findMemberByUsername("AAA");
+        System.out.println("findMember = " + findMember);
+
+        /**
+         * 단건 조회 메소드를 호출하면 스프링 데이터 JPA는 내부에서 JPQL의
+         * `Query.getSingleResult()` 메서드를 호출한다.
+         *
+         * 이 메서드를 호출했을 때 **조회 결과가 없으면 NoResultException**
+         * **예외가 발생**하는데, 개발자 입장에서 다루기가 상당히 까다롭다.
+         *
+         * ***스프링 데이터 JPA는 단건을 조회할 때 이 예외가 발생하면***
+         * ***예외를 무시하고 대신에 null을 반환***한다.
+         */
+    }
+
 
 }
