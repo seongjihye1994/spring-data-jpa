@@ -14,10 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @SpringBootTest // 스프링 빈 인젝션을 위해 스프링 컨테이너가 필요함, JUNIT5 + Spring boot 환경에서는 RunWith 필요 x
 @Rollback(false) // 스프링 부트는 트랜잭셔널이 붙으면 테스트시 결과를 롤백을 시켜버린다. 결과를 보고싶으면 Rollback을 false로. -> 커밋
-class MemberJpaRepositoryTest {
+class memberJpaRepositoryTest {
 
     @Autowired
-    MemberJpaRepository memberJpaRepository;
+    study.datajpa.repository.memberJpaRepository memberJpaRepository;
 
     @Test
     void testMember() {
@@ -118,6 +118,24 @@ class MemberJpaRepositoryTest {
         // then
         assertThat(members.size()).isEqualTo(3);
         assertThat(totalCount).isEqualTo(5);
+    }
+
+
+    @Test
+    public void bulkUpdate() {
+
+        // given
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 19));
+        memberJpaRepository.save(new Member("member3", 20));
+        memberJpaRepository.save(new Member("member4", 21));
+        memberJpaRepository.save(new Member("member5", 40));
+
+        // when
+        int resultCount = memberJpaRepository.bulkAgePlus(20); // 20살 이상부터 나이에 +1 하기
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
     }
 
 }
