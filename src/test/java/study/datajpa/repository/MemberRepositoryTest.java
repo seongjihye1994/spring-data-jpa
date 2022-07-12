@@ -3,6 +3,10 @@ package study.datajpa.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -183,6 +187,43 @@ class MemberRepositoryTest {
          * ***스프링 데이터 JPA는 단건을 조회할 때 이 예외가 발생하면***
          * ***예외를 무시하고 대신에 null을 반환***한다.
          */
+    }
+
+    @Test
+    public void paging() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        int age = 10;
+
+        // 0 페이지부터 3개 가져오기, 정렬은 username을 DESC로
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        // when
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+
+        // Member 엔티티를 그대로 노출하면 XXX!!!
+        // DTO로 변환해주자!
+        Page<MemberDto> toMap = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+
+        // 반환 타입을 Page로 받으면 totalCount 쿼리를 자동으로 날려준다!
+
+        // then
+        List<Member> content = page.getContent();
+
+        assertThat(content.size()).isEqualTo(3); // 한 페이지에 3명의 멤버가 나오는지 확인
+        assertThat(page.getTotalElements()).isEqualTo(5); // 총 멤버가 5명인지 확인
+        assertThat(page.getNumber()).isEqualTo(0); // 페이지 번호를 자동으로 알려준다!
+        assertThat(page.getTotalPages()).isEqualTo(2); // 총 페이지 갯수, 멤버가 5명이니까 한 페이지당 멤버 2명씩 자르면 총 2페이지가 나와야 함.
+        assertThat(page.isFirst()).isTrue(); // 첫 페이지인지 확인
+        assertThat(page.hasNext()).isTrue(); // 다음 페이지가 있는지 확인
+
+        // Slice 객체는 totalCount 쿼리를 날리지 않는다.
+        // 그래서 totalCount 도 모를 뿐더러, totalPages 도 모른다.
     }
 
 
