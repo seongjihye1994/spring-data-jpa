@@ -261,5 +261,44 @@ class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
     }
 
+    @Test
+    public void findMemberLazy() {
+
+        // given
+        // member1 -> teamA 참조 (연관관계)
+        // member2 -> teamB 참조 (연관관계)
+
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // when N + 1 문제
+        // select Member 1
+        List<Member> members = memberRepository.findAll(); // @EntityGraph를 사용한 findAll 과 일반 findAll 같이 있음
+//        List<Member> members = memberRepository.findMemberFetchJoin();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            // 이 때 member 엔티티의 team 필드는 비어있다. -> 지연관계 설정으로 인해 가짜 객체를 만든다!
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+
+            // Team 이름 조회 -> Team의 필드인 name을 조회하니 Team 을 이 때 터치함! -> 이 때는 진짜 객체를 가져옴.
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+
+
 
 }

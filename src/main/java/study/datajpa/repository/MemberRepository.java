@@ -3,6 +3,7 @@ package study.datajpa.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -48,4 +49,22 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true) // 이 어노테이션이 있어야 executeUpdate() 를 실행할 수 있다.
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+    // 1. 공통 메서드 오러바이드에 @EntityGraph 사용
+    @Override
+    @EntityGraph(attributePaths = {"team"}) // 멤버 조회 시 연관된 team도 페치조인 하고싶은데, JPQL은 사용하고 싶지 않을 때
+    List<Member> findAll();
+
+    // 2. JPQL + 엔티티 그래프
+//    @EntityGraph(attributePaths = {"team"}) // 두개 같이 사용해도 됨
+    @EntityGraph("Member.all") // 엔티티에 @NamedEntityGraph 를 사용할 때 지정해줌
+    @Query("select m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    // 3. 메서드 이름으로 쿼리에서 특히 편리하다.
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findEntityGraphByUsername(String username);
 }
