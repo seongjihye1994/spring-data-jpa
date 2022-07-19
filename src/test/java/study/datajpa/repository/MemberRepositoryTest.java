@@ -298,6 +298,38 @@ class MemberRepositoryTest {
         }
     }
 
+    @Test
+    public void queryHint() {
+
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        // when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+        // JPA Hint를 사용해 readOnly 옵션을 줬기 때문에,
+        // 더티체킹을 위한 원본과 사본 객체 두개를 만들지 않도록 하여 메모리 낭비를 줄인다.
+
+    }
+
+
+    @Test
+    public void lock() {
+
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        // when
+        List<Member> result = memberRepository.findLockByUsername("member1");
+
+    }
+
+
+
 
 
 
