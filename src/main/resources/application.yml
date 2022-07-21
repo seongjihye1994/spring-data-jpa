@@ -9,10 +9,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create # JPA 로딩 시점에, 테이블을 모두 Drop 한 후, 재생성, 애플리케이션 다운 후에도 테이블을 남겨둔다.
-  properties:
-    hibernate:
-      #show_sql: true # JPA 실행 쿼리를 sout으로 콘솔에 찍는다.
-      format_sql: true
+    properties:
+      hibernate:
+        #show_sql: true # JPA 실행 쿼리를 sout으로 콘솔에 찍는다.
+        format_sql: true
+
+# 페이징 설정
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 2000
+        one-indexed-parameters: true # 페이지 시작을 1부터
 
 logging.level:
   org.hibernate.SQL: debug # JPA 실행 쿼리를 로그 파일에 남긴다.
