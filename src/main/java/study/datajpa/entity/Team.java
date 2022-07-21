@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 사용시 Entity는 기본 생성자 필수 -> Proxy 기술 사용을 위해 protected 으로 설정.
 @ToString(of = {"id", "name"}) // toString은 연관관계가 없는 필드에만 설정하는 것이 좋다.
-public class Team {
+public class Team extends /*JpaBaseEntity*/ BaseEntity {
 
     @Id
     @GeneratedValue

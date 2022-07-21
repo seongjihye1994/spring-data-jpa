@@ -14,7 +14,7 @@ import javax.persistence.*;
         query="select m from Member m where m.username = :username"
 )
 @NamedEntityGraph(name="Member.all", attributeNodes = @NamedAttributeNode("team"))
-public class Member {
+public class Member extends /*JpaBaseEntity*/ BaseEntity {
 
     @Id
     @GeneratedValue // JPA가 자동으로 ID를 생성해서 넣어줌
