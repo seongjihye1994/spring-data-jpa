@@ -4,10 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -355,6 +352,46 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findAll(spec);
 
         Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void queryByExample() {
+
+        // given
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        memberRepository.findByUsername("m1");
+        // 만약 조건이 여러개로 동적 쿼리가 발생해야 한다면??
+        // Query by Example 를 사용해보자.
+
+        // Probe
+        Member member = new Member("m1"); // 엔티티 자체가 검색 조건이 된다.
+        Team team = new Team("teamA");
+        member.setTeam(team); // 연관관계 세팅
+
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withIgnorePaths("age");// age 라는 속성은 무시한다.
+
+        Example<Member> example = Example.of(member, matcher);// 엔티티로 example를 만든다. matcher 로 무시할 속성은 무시한다.
+
+        List<Member> result = memberRepository.findAll(example);
+
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
+
+        // queryByExample 은 inner join만 가능하고, outer join은 불가하다.
+        // 그래서 실무에서 잘 사용하지 않는다.
+
+
     }
 
 
