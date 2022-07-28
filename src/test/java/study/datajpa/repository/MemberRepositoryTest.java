@@ -394,6 +394,30 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    public void projections() {
+
+        // given
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        // m2 멤버만 조회하고 싶으면?
+        List<UsernameOnlyDto> result = memberRepository.findProjectionsByUsername("m1");
+
+        for (UsernameOnlyDto usernameOnlyDto : result) {
+            System.out.println("usernameOnlyDto = " + usernameOnlyDto.getUsername());
+        }
+    }
+
 
 
 
